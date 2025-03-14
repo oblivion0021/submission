@@ -6,6 +6,22 @@ from io import BytesIO
 import base64
 import scipy.fftpack as fft
 
+# 解决 Matplotlib 中文显示问题
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+def generate_placeholder_image():
+    """ 生成默认的占位图，显示‘等待数据传入’ """
+    fig, ax = plt.subplots(figsize=(6, 3),dpi=100)
+    ax.text(0.5, 0.5, "等待数据传入", fontsize=15, ha='center', va='center')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    
+    return fig_to_base64(fig)
 
 def generate_signal():
     """ 生成模拟离心泵故障信号（50Hz + 120Hz 叠加信号） """
@@ -29,6 +45,9 @@ class PumpFaultDetectionApp(App):
         self.data = None
 
     def main(self):
+        # 生成默认的 "等待数据传入" 图片
+        placeholder_img = generate_placeholder_image()
+
         # 主容器（垂直布局，填满屏幕）
         container = gui.VBox(width="100%", height="100%", margin="10px")
 
@@ -41,13 +60,13 @@ class PumpFaultDetectionApp(App):
         
         # 时域图部分
         time_domain_canvas_container = gui.VBox(width="40%", height="100%")
-        self.time_domain_canvas = gui.Image(width="100%", height="90%")
+        self.time_domain_canvas = gui.Image(placeholder_img,width="100%", height="90%")
         time_domain_canvas_container.append(gui.Label("时域分析", style={"font-size": "20px", "text-align": "center"}))
         time_domain_canvas_container.append(self.time_domain_canvas)
 
         # 频域图部分
         freq_domain_canvas_container = gui.VBox(width="40%", height="100%")
-        self.freq_domain_canvas = gui.Image(width="100%", height="90%")
+        self.freq_domain_canvas = gui.Image(placeholder_img,width="100%", height="90%")
         freq_domain_canvas_container.append(gui.Label("频域分析", style={"font-size": "20px", "text-align": "center"}))
         freq_domain_canvas_container.append(self.freq_domain_canvas)
 
