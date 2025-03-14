@@ -29,30 +29,35 @@ class PumpFaultDetectionApp(App):
         self.data = None
 
     def main(self):
-        # 主容器，采用垂直布局，填满屏幕
-        container = gui.VBox(width="100%", height="100%")
+        # 主容器（垂直布局，填满屏幕）
+        container = gui.VBox(width="100%", height="100%", margin="10px")
 
         # 上传文件按钮
-        self.upload_btn = gui.FileUploader(width="100%", height="8%")
+        self.upload_btn = gui.FileUploader(width="100%", height="auto")
         self.upload_btn.onsuccess.do(self.on_file_upload)
 
-        # 时域图 & 频域图
-        canvas_container = gui.HBox(width="100%",height="50%")
-        time_domain_canvas_container = gui.VBox(width="50%",height="100%")
-        freq_domain_canvas_container = gui.VBox(width="50%",height="100%")
-        self.time_domain_canvas = gui.Image(width="100%", height="100%")
-        self.freq_domain_canvas = gui.Image(width="100%", height="100%")
+        # 时域图 & 频域图（并排布局）
+        canvas_container = gui.HBox(width="100%", height="60%")
+        
+        # 时域图部分
+        time_domain_canvas_container = gui.VBox(width="40%", height="100%")
+        self.time_domain_canvas = gui.Image(width="100%", height="90%")
         time_domain_canvas_container.append(gui.Label("时域分析", style={"font-size": "20px", "text-align": "center"}))
         time_domain_canvas_container.append(self.time_domain_canvas)
+
+        # 频域图部分
+        freq_domain_canvas_container = gui.VBox(width="40%", height="100%")
+        self.freq_domain_canvas = gui.Image(width="100%", height="90%")
         freq_domain_canvas_container.append(gui.Label("频域分析", style={"font-size": "20px", "text-align": "center"}))
         freq_domain_canvas_container.append(self.freq_domain_canvas)
+
         canvas_container.append(time_domain_canvas_container)
         canvas_container.append(freq_domain_canvas_container)
 
         # 按钮容器（放置 "故障检测" & "保存数据"）
-        button_container = gui.HBox(width="100%", height="8%")
-        self.detection_btn = gui.Button("进行故障检测", width="50%", height="100%")
-        self.save_btn = gui.Button("保存分析结果", width="50%", height="100%")
+        button_container = gui.HBox(width="100%", height="auto", margin="10px")
+        self.detection_btn = gui.Button("进行故障检测", width="40%", height="50px")
+        self.save_btn = gui.Button("保存分析结果", width="40%", height="50px")
         self.detection_btn.onclick.do(self.on_fault_detection)
         self.save_btn.onclick.do(self.on_save)
         button_container.append(self.detection_btn)
@@ -66,7 +71,7 @@ class PumpFaultDetectionApp(App):
         return container
 
     def on_file_upload(self, widget, filename):
-        """ 文件上传回调函数，加载数据并绘制时域 & 频域图 """
+        """ 文件上传回调函数，加载数据 """
         # 这里可以替换为从上传文件中读取数据
         t, signal = generate_signal()
         self.data = (t, signal)
@@ -75,7 +80,7 @@ class PumpFaultDetectionApp(App):
 
     def update_time_domain_plot(self, t, signal):
         """ 绘制时域信号波形 """
-        fig, ax = plt.subplots(figsize=(8, 4))
+        fig, ax = plt.subplots(figsize=(6, 3))
         ax.plot(t, signal)
         ax.set_title("时域分析")
         ax.set_xlabel("时间 (s)")
@@ -90,7 +95,7 @@ class PumpFaultDetectionApp(App):
         freq = np.fft.fftfreq(n, 1/fs)
         fft_signal = np.abs(fft.fft(signal))
 
-        fig, ax = plt.subplots(figsize=(8, 4))
+        fig, ax = plt.subplots(figsize=(6, 3))
         ax.plot(freq[:n//2], fft_signal[:n//2])  # 只绘制正频率部分
         ax.set_title("频域分析")
         ax.set_xlabel("频率 (Hz)")
@@ -99,16 +104,10 @@ class PumpFaultDetectionApp(App):
         self.freq_domain_canvas.set_image(fig_to_base64(fig))
 
     def on_fault_detection(self, widget):
-        """ 简单的故障检测逻辑（均值阈值法） """
-        if self.data is not None:
-            t, signal = self.data
-            mean_signal = np.mean(signal)
-            msg = "检测到故障" if mean_signal > 0.3 else "无故障"
-            gui.GenericDialog("故障检测结果", msg, width=300, height=200).show(self)
+        """ 检测故障 """
 
     def on_save(self, widget):
-        """ 模拟数据保存操作 """
-        gui.GenericDialog("保存", "分析结果已保存", width=300, height=200).show(self)
+        """ 数据保存操作 """
 
 
 # 运行应用
