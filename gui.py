@@ -74,21 +74,17 @@ class PumpFaultDetectionApp(App):
         return self.container
 
     def show_main_view(self, widget=None):
-        """ 显示主界面 """
         self.info_label.set_text("欢迎使用离心泵故障诊断系统")
         self.analysis_container.style["display"] = "none"
 
     def show_analysis_view(self, widget):
-        """ 显示时频分析界面 """
         self.analysis_container.style["display"] = "block"
         self.info_label.set_text("请点击‘开始分析’以查看结果")
 
     def on_file_upload(self, widget, filename):
-        """ 处理文件上传 """
         self.info_label.set_text(f"已选择文件: {filename}")
 
     def perform_analysis(self, widget):
-        """ 执行时频域分析（CWT） """
         # 生成信号数据
         fs = 1000  # 采样率
         t = np.linspace(0, 1, fs)
@@ -106,7 +102,6 @@ class PumpFaultDetectionApp(App):
         ax.set_ylabel("尺度")
         
         self.time_domain_canvas.set_image(fig_to_base64(fig))
-        self.info_label.set_text("分析完成！")
 
 # 运行应用
 start(PumpFaultDetectionApp, address='0.0.0.0', port=8081, start_browser=True)

@@ -1,53 +1,72 @@
 import remi.gui as gui
 from remi import start, App
-from analysis_gui import AnalysisApp
-from diagnosis_gui import DiagnosisApp
-from history_gui import HistoryApp
+
+import analysis_gui
+import diagnosis_gui
+import records_gui
 
 class MainApp(App):
     def __init__(self, *args):
         super(MainApp, self).__init__(*args)
+        self.main_container = gui.VBox(width="100%", height="100%", margin="10px")
+        self.button_container = None  # 按钮容器的初始化
 
     def main(self):
-        container = gui.VBox(width="100%", height="100%", margin="10px")
+        self.main_container = gui.VBox(width="100%", height="100%", margin="10px")
+        return self.show_main_ui()
 
-        self.label = gui.Label("欢迎使用离心泵故障诊断系统", style={"font-size": "20px", "text-align": "center"})
-        self.file_uploader = gui.FileUploader(width="100%", height="auto")
-        self.file_uploader.onsuccess.do(self.on_file_upload)
+    def show_main_ui(self, widget=None):
+        self.main_container.empty()
 
-        button_row = gui.HBox(width="100%", height="50px", margin="10px")
-        self.analyze_btn = gui.Button("时频域分析", width="30%", height="40px")
-        self.diagnose_btn = gui.Button("故障诊断", width="30%", height="40px")
-        self.history_btn = gui.Button("读取诊断记录", width="30%", height="40px")
+        # 创建按钮容器
+        self.button_container = gui.HBox(width="100%", height="10%")
+        self.button_container.style['align-items'] = 'flex-start'
 
-        self.analyze_btn.onclick.do(self.open_analysis)
-        self.diagnose_btn.onclick.do(self.open_diagnosis)
-        self.history_btn.onclick.do(self.open_history)
+        btn_analysis = gui.Button("时频域分析", width="25%", height="50px")
+        btn_diagnosis = gui.Button("故障诊断", width="25%", height="50px")
+        btn_records = gui.Button("读取诊断记录", width="25%", height="50px")
 
-        button_row.append(self.analyze_btn)
-        button_row.append(self.diagnose_btn)
-        button_row.append(self.history_btn)
+        # 为按钮绑定点击事件
+        btn_analysis.onclick.do(self.show_analysis_ui)
+        btn_diagnosis.onclick.do(self.show_diagnosis_ui)
+        btn_records.onclick.do(self.show_records_ui)
 
-        container.append(self.label)
-        container.append(self.file_uploader)
-        container.append(button_row)
+        # 将按钮添加到容器中
+        self.button_container.append(btn_analysis)
+        self.button_container.append(btn_diagnosis)
+        self.button_container.append(btn_records)
 
-        return container
+        # 添加到主界面
+        label_container = gui.VBox(width="100%", height="30%")
+        label_container.style['justify-content'] = 'center'
 
-    def on_file_upload(self, widget, filename):
-        self.label.set_text(f"当前选择文件: {filename}")
+        label_welcome = gui.Label("欢迎使用离心泵故障诊断系统", style={"font-size": "20px", "text-align": "center"})
+        label_container.append(label_welcome)
 
-    def open_analysis(self, widget):
-        self.start_sub_app(AnalysisApp)
+        file_upload_container = gui.VBox(width="100%", height="20%")
+        file_upload_container.style['align-items'] = 'center'
 
-    def open_diagnosis(self, widget):
-        self.start_sub_app(DiagnosisApp)
+        file_uploader = gui.FileUploader(width="50%", height="auto")
+        file_upload_container.append(file_uploader)
 
-    def open_history(self, widget):
-        self.start_sub_app(HistoryApp)
+        # 将组件添加到主容器中
+        self.main_container.append(self.button_container)
+        self.main_container.append(label_container)
+        self.main_container.append(file_upload_container)
 
-    def start_sub_app(self, app_class):
-        self.close()
-        start(app_class, address="0.0.0.0", port=8081, start_browser=True, multiple_instance=True)
+        return self.main_container
 
-start(MainApp, address="0.0.0.0", port=8081, start_browser=True)
+    def show_analysis_ui(self, widget=None):
+        self.main_container.empty()  # 清空界面
+        self.main_container.append(analysis_gui.get_analysis_ui(self))
+
+    def show_diagnosis_ui(self, widget=None):
+        self.main_container.empty()  # 清空界面
+        self.main_container.append(diagnosis_gui.get_diagnosis_ui(self))
+
+    def show_records_ui(self, widget=None):
+        self.main_container.empty()  # 清空界面
+        self.main_container.append(records_gui.get_records_ui(self))
+
+# 运行应用
+start(MainApp, address='0.0.0.0', port=8081, start_browser=True)
