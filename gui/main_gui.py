@@ -9,8 +9,15 @@ class MainApp(App):
     def __init__(self, *args):
         super(MainApp, self).__init__(*args)
         self.main_container = gui.VBox(width="100%", height="100%", margin="10px")
-        self.main_container.style['background-color'] = '#f4f4f9'  # 设置主容器背景色
-        self.button_container = None
+        self.main_container.style['background-color'] = '#f4f4f9'
+        self.current_page = None  # 新增页面状态跟踪
+
+    def switch_page(self, new_page):
+        """ 统一处理所有页面切换 """
+        if self.current_page:
+            self.main_container.remove_child(self.current_page)
+        self.current_page = new_page
+        self.main_container.append(self.current_page)
 
     def main(self):
         self.main_container = gui.VBox(width="100%", height="100%", margin="10px")
@@ -73,16 +80,13 @@ class MainApp(App):
         return self.main_container
 
     def show_analysis_ui(self, widget=None):
-        self.main_container.empty()  # 清空界面
-        self.main_container.append(analysis_gui.get_analysis_ui(self))
+        self.switch_page(analysis_gui.get_analysis_ui(self))
 
     def show_diagnosis_ui(self, widget=None):
-        self.main_container.empty()  # 清空界面
-        self.main_container.append(diagnosis_gui.get_diagnosis_ui(self))
+        self.switch_page(diagnosis_gui.get_diagnosis_ui(self))
 
     def show_records_ui(self, widget=None):
-        self.main_container.empty()  # 清空界面
-        self.main_container.append(records_gui.get_records_ui(self))
+        self.switch_page(records_gui.get_records_ui(self))
 
 # 运行应用
 start(MainApp, address='0.0.0.0', port=8081, start_browser=True)
