@@ -11,7 +11,7 @@ def get_analysis_ui(main_app):
     back_button.style['border'] = 'none'
     back_button.style['border-radius'] = '5px'
     back_button.style['margin'] = '20px'
-    back_button.onclick.do(main_app.show_main_ui)  # 返回主界面
+    back_button.onclick.do(lambda _: main_app.show_main_ui())  # 使用lambda确保正确绑定
 
     label = gui.Label("时频域分析界面", style={"font-size": "24px", "text-align": "center", "color": "#333"})
 

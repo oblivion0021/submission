@@ -14,10 +14,15 @@ class MainApp(App):
 
     def switch_page(self, new_page):
         """ 统一处理所有页面切换 """
-        if self.current_page:
-            self.main_container.remove_child(self.current_page)
-        self.current_page = new_page
-        self.main_container.append(self.current_page)
+        try:
+            if self.current_page:
+                print(f"移除旧页面: {type(self.current_page).__name__}")  # 调试日志
+                self.main_container.remove_child(self.current_page)
+            print(f"加载新页面: {type(new_page).__name__}")  # 调试日志
+            self.current_page = new_page
+            self.main_container.append(self.current_page)
+        except Exception as e:
+            print(f"页面切换异常: {str(e)}")
 
     def main(self):
         self.main_container = gui.VBox(width="100%", height="100%", margin="10px")
@@ -44,10 +49,18 @@ class MainApp(App):
             btn.style['border-radius'] = '5px'
             btn.style['margin'] = '0 10px'
 
-        # 为按钮绑定点击事件
-        btn_analysis.onclick.do(self.show_analysis_ui)
-        btn_diagnosis.onclick.do(self.show_diagnosis_ui)
-        btn_records.onclick.do(self.show_records_ui)
+        # 为按钮绑定点击事件（增加异常打印）
+        try:
+            btn_analysis.onclick.do(self.show_analysis_ui)
+            btn_diagnosis.onclick.do(self.show_diagnosis_ui)
+            btn_records.onclick.do(self.show_records_ui)
+        except Exception as e:
+            print(f"按钮事件绑定失败: {str(e)}")
+
+        # 添加以下调试代码
+        test_button = gui.Button("测试按钮")
+        test_button.onclick.do(lambda _: print("测试按钮被点击"))
+        self.button_container.append(test_button)
 
         # 将按钮添加到容器中
         self.button_container.append(btn_analysis)
